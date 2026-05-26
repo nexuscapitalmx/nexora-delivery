@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#D4AF37">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Nexora Mensajería</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <!-- PANTALLA: LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-bg">
+      <div class="gold-orb"></div>
+      <div class="gold-orb orb2"></div>
+    </div>
+    <div class="login-content">
+      <div class="logo-wrap">
+        <div class="logo-icon">⬡</div>
+        <h1 class="logo-text">NEXORA</h1>
+        <p class="logo-sub">MENSAJERÍA EXPRESS · CDMX</p>
+      </div>
+      <div class="login-form">
+        <p class="login-hint">Ingresa con tu correo electrónico</p>
+        <div class="input-wrap">
+          <input type="email" id="input-email" placeholder="tu@correo.com" autocomplete="email">
+        </div>
+        <button class="btn-primary" id="btn-login">Continuar</button>
+        <p class="login-note">Te enviamos un enlace de acceso. Sin contraseñas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA: HOME -->
+  <div id="screen-home" class="screen">
+    <header class="app-header">
+      <div class="header-logo">⬡ NEXORA</div>
+      <div class="header-user" id="header-user-name">—</div>
+    </header>
+    <main class="home-main">
+      <div class="hero-card">
+        <div class="hero-tag">Express CDMX</div>
+        <h2 class="hero-title">¿Qué<br>enviamos<br>hoy?</h2>
+        <button class="btn-hero" id="btn-nuevo-pedido">Nuevo envío →</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-num" id="stat-total">0</span>
+          <span class="stat-label">Envíos totales</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num" id="stat-activos">0</span>
+          <span class="stat-label">En camino</span>
+        </div>
+      </div>
+      <div class="section-title">Mis envíos recientes</div>
+      <div id="lista-pedidos" class="pedidos-list">
+        <div class="empty-state">Aún no tienes envíos</div>
+      </div>
+    </main>
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-screen="home">
+        <span>⌂</span><span>Inicio</span>
+      </button>
+      <button class="nav-btn" data-screen="nuevo">
+        <span>＋</span><span>Enviar</span>
+      </button>
+      <button class="nav-btn" data-screen="historial">
+        <span>◷</span><span>Historial</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- PANTALLA: NUEVO PEDIDO -->
+  <div id="screen-nuevo" class="screen">
+    <header class="app-header">
+      <button class="btn-back" id="btn-back-nuevo">← Volver</button>
+      <div class="header-logo">Nuevo envío</div>
+    </header>
+    <main class="form-main">
+
+      <div class="form-step active" id="step-1">
+        <div class="step-label">Paso 1 de 3 — Origen y destino</div>
+        <div class="input-group">
+          <label>¿Dónde recogemos el paquete?</label>
+          <input type="text" id="input-origen" placeholder="Calle, colonia, alcaldía...">
+          <div class="zona-tag" id="zona-origen-tag"></div>
+        </div>
+        <div class="input-group">
+          <label>¿A dónde lo llevamos?</label>
+          <input type="text" id="input-destino" placeholder="Calle, colonia, alcaldía...">
+          <div class="zona-tag" id="zona-destino-tag"></div>
+        </div>
+        <div class="cotizador-box" id="cotizador-box" style="display:none">
+          <div class="cotizador-row">
+            <span>Envío estándar</span>
+            <span class="precio-std" id="precio-std">—</span>
+          </div>
+          <div class="cotizador-row express">
+            <span>⚡ Express (+20%)</span>
+            <span class="precio-exp" id="precio-exp">—</span>
+          </div>
+          <div class="tipo-select">
+            <button class="tipo-btn active" data-tipo="estandar">Estándar</button>
+            <button class="tipo-btn" data-tipo="express">⚡ Express</button>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-step1">Siguiente →</button>
+      </div>
+
+      <div class="form-step" id="step-2">
+        <div class="step-label">Paso 2 de 3 — Detalle del paquete</div>
+        <div class="input-group">
+          <label>¿Qué enviamos? (descripción breve)</label>
+          <input type="text" id="input-descripcion" placeholder="Ej: documentos, ropa, electrónico...">
+        </div>
+        <div class="input-group">
+          <label>Foto del paquete <span class="required">*obligatoria</span></label>
+          <div class="foto-upload" id="foto-upload-area">
+            <input type="file" id="input-foto" accept="image/*" capture="environment">
+            <div class="foto-placeholder" id="foto-placeholder">
+              <span>📷</span>
+              <span>Toca para tomar foto</span>
+            </div>
+            <img id="foto-preview" style="display:none">
+          </div>
+        </div>
+        <div class="declaracion-box">
+          <label class="check-label">
+            <input type="checkbox" id="check-declaracion">
+            <span>Declaro que el paquete no contiene: alcohol, medicamentos controlados, efectivo mayor a $500 MXN, objetos ilícitos.</span>
+          </label>
+        </div>
+        <button class="btn-primary" id="btn-step2">Siguiente →</button>
+        <button class="btn-secondary" id="btn-back-step2">← Atrás</button>
+      </div>
+
+      <div class="form-step" id="step-3">
+        <div class="step-label">Paso 3 de 3 — Confirmar envío</div>
+        <div class="resumen-card">
+          <div class="resumen-row">
+            <span class="resumen-label">Origen</span>
+            <span class="resumen-val" id="res-origen">—</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">Destino</span>
+            <span class="resumen-val" id="res-destino">—</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">Tipo</span>
+            <span class="resumen-val" id="res-tipo">—</span>
+          </div>
+          <div class="resumen-row total">
+            <span class="resumen-label">Total</span>
+            <span class="resumen-val gold" id="res-precio">—</span>
+          </div>
+        </div>
+        <div class="aviso-pago">
+          💳 El pago se coordina con el operador al confirmar el pedido.
+        </div>
+        <button class="btn-primary" id="btn-confirmar">Confirmar envío</button>
+        <button class="btn-secondary" id="btn-back-step3">← Atrás</button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- PANTALLA: SEGUIMIENTO -->
+  <div id="screen-tracking" class="screen">
+    <header class="app-header">
+      <button class="btn-back" id="btn-back-tracking">← Mis envíos</button>
+      <div class="header-logo">Seguimiento</div>
+    </header>
+    <main class="tracking-main">
+      <div class="tracking-id" id="tracking-id">NX-000000</div>
+      <div class="tracking-steps">
+        <div class="t-step" id="ts-pendiente">
+          <div class="t-dot"></div>
+          <div class="t-info">
+            <div class="t-title">Pedido recibido</div>
+            <div class="t-sub">Buscando repartidor disponible</div>
+          </div>
+        </div>
+        <div class="t-step" id="ts-aceptado">
+          <div class="t-dot"></div>
+          <div class="t-info">
+            <div class="t-title">Repartidor asignado</div>
+            <div class="t-sub" id="t-repartidor-nombre">—</div>
+          </div>
+        </div>
+        <div class="t-step" id="ts-recogido">
+          <div class="t-dot"></div>
+          <div class="t-info">
+            <div class="t-title">Paquete recogido</div>
+            <div class="t-sub">En camino a destino</div>
+          </div>
+        </div>
+        <div class="t-step" id="ts-entregado">
+          <div class="t-dot"></div>
+          <div class="t-info">
+            <div class="t-title">Entregado ✓</div>
+            <div class="t-sub">Envío completado</div>
+          </div>
+        </div>
+      </div>
+      <div class="rating-section" id="rating-section" style="display:none">
+        <p>¿Cómo estuvo el servicio?</p>
+        <div class="stars" id="stars-rating">
+          <span data-val="1">★</span>
+          <span data-val="2">★</span>
+          <span data-val="3">★</span>
+          <span data-val="4">★</span>
+          <span data-val="5">★</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
