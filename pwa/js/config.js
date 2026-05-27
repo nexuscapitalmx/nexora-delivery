@@ -1,61 +1,29 @@
 const SUPABASE_URL = 'https://irucxcwprntynwsaijyq.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlydWN4Y3dwcm50eW53c2FpanlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjIwNTUsImV4cCI6MjA5NTM5ODA1NX0.tppdLoDWMB7jxgVTrbvj5rKjU8UGYjyj6CVy7ACU5Gs'
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFjZzExOTYiLCJhIjoiY21veXNvczFiMThrbzJxcWM4MmRvOWQzbiJ9.t4DM7dJPoEgYvViNsfENig'
 
-const ZONAS_MAP = {
-  'benito juarez': 'roma_condesa',
-  'cuauhtemoc': 'centro',
-  'cuauhtémoc': 'centro',
-  'miguel hidalgo': 'centro',
-  'venustiano carranza': 'centro',
-  'gustavo a madero': 'norte',
-  'gustavo a. madero': 'norte',
-  'azcapotzalco': 'norte',
-  'coyoacan': 'sur',
-  'coyoacán': 'sur',
-  'xochimilco': 'sur',
-  'tlalpan': 'sur',
-  'iztapalapa': 'oriente',
-  'iztacalco': 'oriente',
-  'tlahuac': 'oriente',
-  'tláhuac': 'oriente',
-  'alvaro obregon': 'poniente',
-  'álvaro obregón': 'poniente',
-  'cuajimalpa': 'poniente',
-  'roma': 'roma_condesa',
-  'condesa': 'roma_condesa',
-  'polanco': 'centro',
-  'tepito': 'centro',
-  'doctores': 'centro',
-  'narvarte': 'roma_condesa',
-  'del valle': 'roma_condesa',
+// Tarifa por km
+const TARIFA_BASE = 25        // MXN fijos de arranque
+const TARIFA_POR_KM = 8       // MXN por km
+const TARIFA_EXPRESS_MULT = 1.25  // 25% extra express
+const KM_MAXIMO = 40          // límite de cobertura
+
+async function geocodificar(texto) {
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(texto)}.json?access_token=${MAPBOX_TOKEN}&country=MX&proximity=-99.1332,19.4326&language=es&limit=5`
+  const r = await fetch(url)
+  const d = await r.json()
+  return d.features || []
 }
 
-const TARIFAS_LOCAL = {
-  'roma_condesa-roma_condesa': { base: 60, express: 80 },
-  'roma_condesa-centro': { base: 80, express: 100 },
-  'roma_condesa-norte': { base: 120, express: 150 },
-  'roma_condesa-sur': { base: 130, express: 160 },
-  'roma_condesa-oriente': { base: 140, express: 170 },
-  'centro-centro': { base: 60, express: 80 },
-  'centro-norte': { base: 90, express: 110 },
-  'centro-sur': { base: 110, express: 140 },
-  'centro-oriente': { base: 100, express: 130 },
-  'norte-norte': { base: 60, express: 80 },
-  'sur-sur': { base: 60, express: 80 },
-  'oriente-oriente': { base: 60, express: 80 },
-}
-
-function detectarZona(texto) {
-  const t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  for (const [key, zona] of Object.entries(ZONAS_MAP)) {
-    const k = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    if (t.includes(k)) return zona
-  }
-  return null
-}
-
-function cotizar(zonaOrigen, zonaDestino) {
-  const key = `${zonaOrigen}-${zonaDestino}`
-  const keyInv = `${zonaDestino}-${zonaOrigen}`
-  return TARIFAS_LOCAL[key] || TARIFAS_LOCAL[keyInv] || null
+async function calcularRuta(origenCoords, destinoCoords) {
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${origenCoords[0]},${origenCoords[1]};${destinoCoords[0]},${destinoCoords[1]}?access_token=${MAPBOX_TOKEN}&geometries=geojson&overview=full`
+  const r = await fetch(url)
+  const d = await r.json()
+  if (!d.routes?.length) return null
+  const ruta = d.routes[0]
+  const km = ruta.distance / 1000
+  const minutos = Math.round(ruta.duration / 60)
+  const precioBase = Math.round(TARIFA_BASE + (km * TARIFA_POR_KM))
+  const precioExpress = Math.round(precioBase * TARIFA_EXPRESS_MULT)
+  return { km: km.toFixed(1), minutos, precioBase, precioExpress, geometry: ruta.geometry }
 }
