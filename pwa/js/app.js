@@ -346,3 +346,14 @@ function resetForm() {
   selectedTipo = 'estandar'
   document.querySelectorAll('.tipo-btn').forEach((b,i) => b.classList.toggle('active', i===0))
 }
+
+// Maneja el token del magic link en la URL
+if (window.location.hash) {
+  const params = new URLSearchParams(window.location.hash.substring(1))
+  const accessToken = params.get('access_token')
+  const refreshToken = params.get('refresh_token')
+  if (accessToken) {
+    db.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+      .then(() => { window.location.hash = '' })
+  }
+}
